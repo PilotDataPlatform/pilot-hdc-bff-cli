@@ -1,6 +1,7 @@
-# Copyright (C) 2022-2023 Indoc Systems
+# Copyright (C) 2022-Present Indoc Systems
 #
-# Licensed under the GNU AFFERO GENERAL PUBLIC LICENSE, Version 3.0 (the "License") available at https://www.gnu.org/licenses/agpl-3.0.en.html.
+# Licensed under the GNU AFFERO GENERAL PUBLIC LICENSE,
+# Version 3.0 (the "License") available at https://www.gnu.org/licenses/agpl-3.0.en.html.
 # You may not use this file except in compliance with the License.
 
 import pytest
@@ -196,10 +197,15 @@ async def test_upload_files_into_project_without_tag_should_return_403(
     test_async_client_auth, mocker, httpx_mock, mock_get_item_by_id
 ):
     url = (
-        ConfigClass.AUTH_SERVICE + '/v1/authorize?role=platform_admin&resource=file_in_own_namefolder&'
+        ConfigClass.AUTH_SERVICE + '/v1/authorize?role=platform_admin&resource=file_any&'
         'zone=greenroom&operation=upload&project_code=test_project'
     )
     httpx_mock.add_response(method='GET', url=url, json={'result': {'has_permission': True}})
+    url = (
+        ConfigClass.AUTH_SERVICE + '/v1/authorize?role=platform_admin&resource=file_any&'
+        'zone=greenroom&operation=annotate&project_code=test_project'
+    )
+    httpx_mock.add_response(method='GET', url=url, json={'result': {'has_permission': False}})
     url = (
         ConfigClass.AUTH_SERVICE + '/v1/authorize?role=platform_admin&resource=file_in_own_namefolder&'
         'zone=greenroom&operation=annotate&project_code=test_project'

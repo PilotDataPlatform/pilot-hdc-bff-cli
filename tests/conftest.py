@@ -1,6 +1,7 @@
-# Copyright (C) 2022-2023 Indoc Systems
+# Copyright (C) 2022-Present Indoc Systems
 #
-# Licensed under the GNU AFFERO GENERAL PUBLIC LICENSE, Version 3.0 (the "License") available at https://www.gnu.org/licenses/agpl-3.0.en.html.
+# Licensed under the GNU AFFERO GENERAL PUBLIC LICENSE,
+# Version 3.0 (the "License") available at https://www.gnu.org/licenses/agpl-3.0.en.html.
 # You may not use this file except in compliance with the License.
 
 import re
@@ -10,15 +11,23 @@ import pytest
 import pytest_asyncio
 from async_asgi_testclient import TestClient as TestAsyncClient
 from cryptography.hazmat.backends import default_backend as crypto_default_backend
-
 from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi import Request
 from pydantic import BaseModel
+from starlette.config import environ
 
-from app.config import ConfigClass
-from app.main import create_app
-from app.resources.dependencies import jwt_required
+environ['DATASET_SERVICE'] = 'http://dataset_service'
+environ['PROJECT_SERVICE'] = 'http://project_service'
+environ['ENABLE_CACHE'] = 'false'
+
+# These imports are located here because of ConfigClass, which must first consume the above redefined env vars
+from app.components.user.models import CurrentUser  # noqa: E402
+from app.config import ConfigClass  # noqa: E402
+from app.config import Settings  # noqa: E402
+from app.config import get_settings  # noqa: E402
+from app.main import create_app  # noqa: E402
+from app.resources.dependencies import jwt_required  # noqa: E402
 
 key = rsa.generate_private_key(backend=crypto_default_backend(), public_exponent=65537, key_size=2048)
 
@@ -56,7 +65,6 @@ def test_async_client_project_member_auth():
     from run import app
 
     client = TestAsyncClient(app)
-    security = HTTPAuthorizationCredentials
     app.dependency_overrides[jwt_required] = override_member_jwt_required
     return client
 
@@ -108,25 +116,31 @@ async def mock_VM_info():
 
 # Mock for the permission
 async def override_jwt_required(request: Request):
-    return {
-        'code': 200,
-        'user_id': 1,
-        'username': 'testuser',
-        'role': 'admin',
-        'token': 'fake token',
-        'realm_roles': ['platform-admin'],
-    }
+    return CurrentUser(
+        {
+            'code': 200,
+            'user_id': 1,
+            'username': 'testuser',
+            'email': 'test@example.com',
+            'role': 'admin',
+            'token': 'fake token',
+            'realm_roles': [],
+        }
+    )
 
 
 async def override_member_jwt_required(request: Request):
-    return {
-        'code': 200,
-        'user_id': 1,
-        'username': 'testuser',
-        'role': 'contributor',
-        'token': 'fake token',
-        'realm_roles': ['testproject-contributor'],
-    }
+    return CurrentUser(
+        {
+            'code': 200,
+            'user_id': 1,
+            'username': 'testuser',
+            'email': 'test@example.com',
+            'role': 'contributor',
+            'token': 'fake token',
+            'realm_roles': ['testproject-contributor'],
+        }
+    )
 
 
 class HTTPAuthorizationCredentials(BaseModel):
@@ -141,7 +155,6 @@ def mock_settings(monkeypatch):
     monkeypatch.setattr(ConfigClass, 'UPLOAD_SERVICE_GREENROOM', 'http://data_upload_gr')
     monkeypatch.setattr(ConfigClass, 'AUTH_SERVICE', 'http://auth')
     monkeypatch.setattr(ConfigClass, 'METADATA_SERVICE', 'http://metadata_service')
-    monkeypatch.setattr(ConfigClass, 'DATASET_SERVICE', 'http://dataset_service')
 
 
 @pytest.fixture
@@ -154,3 +167,16 @@ def has_permission_true(httpx_mock):
 def has_permission_false(httpx_mock):
     url = re.compile('^http://auth/v1/authorize.*$')
     httpx_mock.add_response(method='GET', url=url, json={'result': {'has_permission': False}})
+
+
+@pytest.fixture
+def settings() -> Settings:
+    settings = get_settings()
+    return settings
+
+
+pytest_plugins = [
+    'tests.fixtures.services.dataset',
+    'tests.fixtures.services.project',
+    'tests.fixtures.fake',
+]

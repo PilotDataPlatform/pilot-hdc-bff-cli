@@ -1,6 +1,7 @@
-# Copyright (C) 2022-2023 Indoc Systems
+# Copyright (C) 2022-Present Indoc Systems
 #
-# Licensed under the GNU AFFERO GENERAL PUBLIC LICENSE, Version 3.0 (the "License") available at https://www.gnu.org/licenses/agpl-3.0.en.html.
+# Licensed under the GNU AFFERO GENERAL PUBLIC LICENSE,
+# Version 3.0 (the "License") available at https://www.gnu.org/licenses/agpl-3.0.en.html.
 # You may not use this file except in compliance with the License.
 
 import pytest
@@ -208,7 +209,7 @@ async def test_zone_enforcement_core_upload():
 async def test_VM_info_enforcement_pass():
     vm_info = {'ip': 'test_ip', 'project_code': 'test_project', 'zone': ConfigClass.GREEN_ZONE_LABEL}
     try:
-        await VM_info_enforcement(vm_info, 'test_ip', 'test_project')
+        await VM_info_enforcement(vm_info=vm_info, incoming_ip='test_ip', project_code='test_project')
     except Exception:
         raise AssertionError()
 
