@@ -5,8 +5,6 @@
 # You may not use this file except in compliance with the License.
 
 from typing import Any
-from typing import Dict
-from typing import List
 
 from pydantic import BaseModel
 from pydantic import Field
@@ -44,8 +42,8 @@ class POSTProjectFile(BaseModel):
     zone: str
     current_folder_node: str
     parent_folder_id: str
-    data: List[Dict[str, Any]]
-    folder_tags: List[str] = []
+    data: list[dict[str, Any]]
+    folder_tags: list[str] = []
 
 
 class ResumableUploadPOST(BaseModel):
@@ -58,14 +56,14 @@ class ResumableUploadPOST(BaseModel):
 
     bucket: str
     zone: str
-    object_infos: List[ObjectInfo]
+    object_infos: list[ObjectInfo]
 
 
 class PreDownloadProjectFile(BaseModel):
     class DownloadFileList(BaseModel):
         id: str
 
-    files: List[DownloadFileList]
+    files: list[DownloadFileList]
     zone: str
     operator: str
     container_code: str

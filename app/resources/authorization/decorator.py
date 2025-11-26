@@ -5,7 +5,6 @@
 # You may not use this file except in compliance with the License.
 
 from functools import wraps
-from typing import Dict
 
 import jwt
 
@@ -29,7 +28,7 @@ def cli_rules_enforcement(action: ValidAction):
         async def inner(*arg, **kwargs):
 
             api_response = APIResponse()
-            request = kwargs.get('request')
+            request = kwargs.get('request', kwargs.get('request_context'))
             project_code = kwargs.get('project_code', None)
             target_zone = kwargs.get('data').zone
 
@@ -71,7 +70,7 @@ def cli_rules_enforcement(action: ValidAction):
     return decorator
 
 
-async def VM_info_enforcement(vm_info: Dict[str, str], incoming_ip: str, project_code: str) -> None:
+async def VM_info_enforcement(vm_info: dict[str, str], incoming_ip: str, project_code: str) -> None:
     """
     Summary:
         the function will check the following attribute in the signed

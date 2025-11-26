@@ -137,7 +137,7 @@ def select_url_by_zone(zone):
     return url
 
 
-async def transfer_to_pre(data, project_code, header):
+async def transfer_to_pre(data, project_code, headers):
     try:
         logger.info('transfer_to_pre'.center(80, '-'))
         payload = {
@@ -148,7 +148,6 @@ async def transfer_to_pre(data, project_code, header):
             'data': data.data,
             'job_type': data.job_type,
         }
-        headers = {'Session-ID': header.get('Session-ID'), 'authorization': header.get('authorization')}
         url = select_url_by_zone(data.zone)
         async with httpx.AsyncClient() as client:
             result = await client.post(url, headers=headers, json=payload, timeout=None)

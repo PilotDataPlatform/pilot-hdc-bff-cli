@@ -11,6 +11,7 @@ from fastapi import Depends
 from fastapi import Request
 from fastapi_utils.cbv import cbv
 
+from app.components.request.context import RequestContextDependency
 from app.components.user.models import CurrentUser
 from app.config import ConfigClass
 from app.logger import logger
@@ -75,7 +76,7 @@ class APIProject:
     async def project_file_preupload(
         self,
         project_code,
-        request: Request,
+        request_context: RequestContextDependency,
         data: POSTProjectFile,
     ):
         """PRE upload and check existence of file in project."""
@@ -106,7 +107,7 @@ class APIProject:
 
         try:
             logger.info('Tansfering to pre upload')
-            result = await transfer_to_pre(data, project_code, request.headers)
+            result = await transfer_to_pre(data, project_code, request_context.headers)
             logger.info(result.text)
             if result.status_code == 409:
                 api_response.error_msg = result.json()['error_msg']
@@ -135,7 +136,7 @@ class APIProject:
     async def project_file_resumable(
         self,
         project_code,
-        request: Request,
+        request_context: RequestContextDependency,
         data: ResumableUploadPOST,
     ):
         """
@@ -172,11 +173,8 @@ class APIProject:
             logger.info('Tansfering to pre upload')
             async with httpx.AsyncClient() as client:
                 url = ConfigClass.UPLOAD_SERVICE_GREENROOM + '/v1/files/resumable'
-                payload = await request.json()
-                headers = {
-                    'authorization': request.headers.get('authorization'),
-                }
-                res = await client.post(url, headers=headers, json=payload, timeout=None)
+                payload = await request_context.request.json()
+                res = await client.post(url, headers=request_context.headers, json=payload, timeout=None)
                 api_response.result = res.json().get('result', [])
 
             return api_response.json_response()
@@ -195,7 +193,7 @@ class APIProject:
     async def project_file_predownload(
         self,
         project_code,
-        request: Request,
+        request_context: RequestContextDependency,
         data: PreDownloadProjectFile,
     ):
         """PRE upload and check existence of file in project."""
@@ -224,10 +222,6 @@ class APIProject:
             else:
                 url = ConfigClass.DOWNLOAD_SERVICE_CORE + '/v2/download/pre/'
             async with httpx.AsyncClient() as client:
-                headers = {
-                    'Session-ID': request.headers.get('Session-ID'),
-                    'authorization': request.headers.get('authorization'),
-                }
                 payload = {
                     'files': [dict(x) for x in data.files],
                     'zone': data.zone,
@@ -235,7 +229,7 @@ class APIProject:
                     'container_code': data.container_code,
                     'container_type': data.container_type,
                 }
-                result = await client.post(url, headers=headers, json=payload)
+                result = await client.post(url, headers=request_context.headers, json=payload)
                 if result.status_code != 200:
                     raise Exception(result.json().get('error_msg'))
 

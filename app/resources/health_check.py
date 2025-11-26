@@ -4,7 +4,7 @@
 # Version 3.0 (the "License") available at https://www.gnu.org/licenses/agpl-3.0.en.html.
 # You may not use this file except in compliance with the License.
 
-from aioredis import StrictRedis
+from redis.asyncio import Redis
 
 from app.logger import logger
 
@@ -13,7 +13,7 @@ from ..config import ConfigClass
 
 async def redis_check():
     try:
-        res = await StrictRedis(
+        res = await Redis(
             host=ConfigClass.REDIS_HOST,
             port=ConfigClass.REDIS_PORT,
             db=ConfigClass.REDIS_DB,

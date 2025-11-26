@@ -35,7 +35,7 @@ def decryption(encrypted_message, secret):
             backend=default_backend(),
         )
         # use the key from current device information
-        key = base64.urlsafe_b64encode(kdf.derive('SECRETKEYPASSWORD'.encode()))
+        key = base64.urlsafe_b64encode(kdf.derive(b'SECRETKEYPASSWORD'))
         f = Fernet(key)
         decrypted = f.decrypt(base64.b64decode(encrypted_message))
         return decrypted.decode()

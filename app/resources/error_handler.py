@@ -12,7 +12,7 @@ from ..models.base_models import EAPIResponseCode
 
 
 def catch_internal(api_namespace):
-    """decorator to catch internal server error."""
+    """Decorator to catch internal server error."""
 
     def decorator(func):
         @wraps(func)
@@ -55,7 +55,7 @@ class ECustomizedError(enum.Enum):
 
 
 def customized_error_template(customized_error: ECustomizedError):
-    """get error template."""
+    """Get error template."""
     return {
         'INTERNAL': '[Internal] %s',
         'FILE_NOT_FOUND': 'File Not Exist',

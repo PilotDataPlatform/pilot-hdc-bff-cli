@@ -13,17 +13,19 @@ from .base_models import APIResponse
 
 
 class ItemStatus(str, Enum):
-    """The new enum type for file status
+    """The new enum type for file status.
+
     - REGISTERED means file is created by upload service but not complete yet. either in progress or fail.
     - ACTIVE means file uploading is complete.
-    - ARCHIVED means the file has been deleted."""
+    - ARCHIVED means the file has been deleted.
+    """
 
     REGISTERED = 'REGISTERED'
     ACTIVE = 'ACTIVE'
     ARCHIVED = 'ARCHIVED'
 
     def __str__(self):
-        return '%s' % self.name
+        return f'{self.name}'
 
 
 class GetProjectFileList(BaseModel):
