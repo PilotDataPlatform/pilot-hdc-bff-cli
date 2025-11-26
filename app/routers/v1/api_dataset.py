@@ -4,8 +4,8 @@
 # Version 3.0 (the "License") available at https://www.gnu.org/licenses/agpl-3.0.en.html.
 # You may not use this file except in compliance with the License.
 
+from collections.abc import Mapping
 from typing import ClassVar
-from typing import Mapping
 
 import fastapi
 import httpx
@@ -132,7 +132,8 @@ class ListDatasets(ProxyPass):
 
         - If the creator parameter is specified it is set with the current username.
         - If the project_code parameter is specified it is part of projects to which the current user has access.
-        - If neither creator nor project_code parameters are specified filtering by projects where user has admin roles or where user is the creator.
+        - If neither creator nor project_code parameters are specified filtering by projects where user has admin roles
+        or where user is the creator.
         """
 
         modified_parameters = MultiDict(parameters)
@@ -183,6 +184,7 @@ class ListDatasets(ProxyPass):
 class GetDataset:
     current_identity: CurrentUser = Depends(jwt_required)
     project_service_client: ProjectServiceClient = Depends(get_project_service_client)
+    dataset_service_client: DatasetServiceClient = Depends(get_dataset_service_client)
 
     @router.get(
         '/dataset/{dataset_code}',
@@ -208,7 +210,7 @@ class GetDataset:
         api_response = DatasetDetailResponse()
 
         logger.info(f'User request with identity: {self.current_identity}')
-        dataset = await get_dataset(dataset_code)
+        dataset = await get_dataset(self.dataset_service_client.client, dataset_code)
         logger.info(f'Getting user dataset node: {dataset}')
         if not dataset:
             api_response.code = EAPIResponseCode.not_found
@@ -224,7 +226,7 @@ class GetDataset:
         dataset_query_event = {'dataset_geid': node_geid, 'page': page, 'page_size': page_size}
         logger.info(f'Dataset query: {dataset_query_event}')
 
-        versions = await get_dataset_versions(dataset_query_event)
+        versions = await get_dataset_versions(self.dataset_service_client.client, dataset_query_event)
         logger.info(f'Dataset versions: {versions}')
         dataset_detail = {'general_info': dataset, 'version_detail': versions, 'version_no': len(versions)}
         api_response.result = dataset_detail

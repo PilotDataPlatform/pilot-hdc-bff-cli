@@ -7,6 +7,7 @@
 import httpx
 from common.project.project_client import ProjectClient
 
+from app.components.request.http_client import HTTPClient
 from app.config import ConfigClass
 from app.logger import logger
 from app.models.file_models import ItemStatus
@@ -65,14 +66,13 @@ async def batch_query_node_by_geid(geid_list):
     return located_geid, query_result
 
 
-async def get_dataset(dataset_code):
-    """get dataset node information."""
+async def get_dataset(client: HTTPClient, dataset_code):
+    """Get dataset node information."""
     logger.info('get_dataset'.center(80, '-'))
     try:
         url = ConfigClass.DATASET_SERVICE + f'/v1/datasets/{dataset_code}'
         logger.info(f'Getting dataset url: {url}')
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url)
+        response = await client.get(url)
         logger.info(f'Getting dataset response: {response.text}')
         response.raise_for_status()
         result = response.json()
@@ -140,9 +140,10 @@ async def query_file_folder(params, request):
         return response
     except Exception as e:
         logger.error(f'Error file/folder: {e}')
+        raise
 
 
-async def get_dataset_versions(event):
+async def get_dataset_versions(client: HTTPClient, event):
     logger.info('get_dataset_versions'.center(80, '-'))
     logger.info(f'Query event: {event}')
     try:
@@ -155,8 +156,7 @@ async def get_dataset_versions(event):
             'order': 'desc',
             'sorting': 'created_at',
         }
-        async with httpx.AsyncClient() as client:
-            res = await client.get(url, params=params)
+        res = await client.get(url, params=params)
         res_json = res.json()
 
         dataset_versions = []
@@ -178,6 +178,7 @@ async def get_dataset_versions(event):
         return dataset_versions
     except Exception as e:
         logger.error(f'Error getting dataset version: {e}')
+        raise
 
 
 def separate_rel_path(folder_path):

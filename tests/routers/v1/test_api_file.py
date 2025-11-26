@@ -32,7 +32,6 @@ async def test_get_name_folders_in_project_should_return_200(test_async_client_a
             'http://metadata_service/v1/items/search/'
             '?container_code=test_project'
             '&container_type=project'
-            '&parent_path='
             '&recursive=false'
             '&zone=0'
             '&status=ACTIVE'

@@ -179,4 +179,5 @@ pytest_plugins = [
     'tests.fixtures.services.dataset',
     'tests.fixtures.services.project',
     'tests.fixtures.fake',
+    'tests.fixtures.request_context',
 ]

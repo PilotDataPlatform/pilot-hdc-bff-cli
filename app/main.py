@@ -42,7 +42,7 @@ def instrument_app(app) -> None:
 
 
 def create_app():
-    """create app function."""
+    """Create app function."""
     app = FastAPI(title='BFF CLI', description='BFF for cli', docs_url='/v1/api-doc', version=ConfigClass.version)
 
     configure_logging(ConfigClass.LOGGING_LEVEL, ConfigClass.LOGGING_FORMAT)
