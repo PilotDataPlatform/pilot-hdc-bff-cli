@@ -14,7 +14,7 @@ from pydantic import Extra
 
 
 class Settings(BaseSettings):
-    version = '2.2.14'
+    version = '2.2.15'
     port: int = 5080
     host: str = '0.0.0.0'
 

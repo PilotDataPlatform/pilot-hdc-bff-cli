@@ -1,6 +1,6 @@
 # BFF-CLI
 
-[![Python](https://img.shields.io/badge/python-3.8-brightgreen.svg)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/python-3.10-brightgreen.svg)](https://www.python.org/)
 
 ## Getting Started
 The backend for the command line interface.
