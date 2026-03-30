@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bff_cli"
-version = "2.2.15"
+version = "2.2.16"
 description = "This service is designed to support command line interface"
 authors = ["Indoc Research"]
 
